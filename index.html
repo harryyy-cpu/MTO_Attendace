@@ -31,6 +31,9 @@
     .btn-primary { background: var(--accent); color: #fff; } .btn-primary:hover { background: #4a7aee; }
     .btn-danger { background: transparent; border: 1px solid var(--border); color: var(--red); padding: 4px 10px; font-size: 0.75rem; } .btn-danger:hover { background: #ef444422; border-color: var(--red); }
     .btn-success { background: var(--green); color: #fff; width: 100%; padding: 12px; font-size: 0.95rem; border-radius: 10px; margin-top: 12px; } .btn-success:hover { background: #16a34a; } .btn-success:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
+    .btn-edit { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 6px 14px; font-size: 0.8rem; border-radius: 6px; } .btn-edit:hover { background: #5b8cff22; }
+    .btn-update { background: var(--accent); color: #fff; width: 100%; padding: 12px; font-size: 0.95rem; border-radius: 10px; margin-top: 12px; } .btn-update:hover { background: #4a7aee; }
+    .btn-cancel { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 100%; padding: 10px; font-size: 0.85rem; border-radius: 10px; margin-top: 8px; } .btn-cancel:hover { background: var(--surface2); }
     .name-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
     .name-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; }
     .name-item .num { color: var(--muted); font-size: 0.75rem; margin-right: 10px; min-width: 20px; }
@@ -67,7 +70,6 @@
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 20px; font-size: 0.85rem; color: var(--text); z-index: 999; transition: transform 0.25s ease; white-space: nowrap; box-shadow: 0 8px 30px #00000066; }
     .toast.show { transform: translateX(-50%) translateY(0); }
     ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    .all-present-note { font-size: 0.78rem; color: var(--muted); font-style: italic; }
     .date-row { display: flex; gap: 8px; align-items: center; margin-bottom: 0; }
     .date-row label { font-size: 0.8rem; color: var(--label); white-space: nowrap; }
     .search-wrap { position: relative; margin-bottom: 12px; }
@@ -79,20 +81,21 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 0.85rem; color: var(--muted); }
     .sync-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--green); background: #22c55e18; border: 1px solid #22c55e40; border-radius: 20px; padding: 3px 10px; margin-left: 8px; }
-    .db-status { font-size: 0.72rem; color: var(--muted); text-align: right; margin-bottom: 12px; }
-    .db-status.connected { color: var(--green); }
-    .db-status.error { color: var(--red); }
+    .recorded-notice { display: flex; align-items: center; justify-content: space-between; background: #22c55e10; border: 1px solid #22c55e40; border-radius: 10px; padding: 12px 14px; margin-bottom: 4px; }
+    .recorded-notice-text { font-size: 0.83rem; color: var(--green); font-weight: 500; }
+    .recorded-notice-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .edit-mode-banner { background: #5b8cff18; border: 1px solid #5b8cff50; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; color: var(--accent); margin-bottom: 12px; }
   </style>
 </head>
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text">Connecting to database...</div>
+  <div class="loading-text"></div>
 </div>
 
 <h1>📋 MTO Attendance System</h1>
-<p class="subtitle">Attendance tracker • flags 3 consecutive absences <span class="sync-badge">🔥 Live</span></p>
+<p class="subtitle">Attendance tracker • flags 3 consecutive absences </p>
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('enroll')">Enroll</button>
@@ -105,13 +108,13 @@
   <div class="card">
     <div class="card-title">Add Name</div>
     <div class="input-row">
-      <input type="text" id="nameInput" placeholder="Enter full name..." onkeydown="if(event.key==='Enter')addName()" />
+      <input type="text" id="nameInput" placeholder="Enter Full Name" onkeydown="if(event.key==='Enter')addName()" />
       <button class="btn-primary" onclick="addName()">Add</button>
     </div>
   </div>
   <div class="card">
     <div class="card-title">Enrolled (<span id="enrollCount">0</span>)</div>
-    <div class="name-list" id="nameList"><div class="empty">Wala pang naka-enroll.</div></div>
+    <div class="name-list" id="nameList"><div class="empty">Empty.</div></div>
   </div>
 </div>
 
@@ -122,35 +125,56 @@
     <span id="sessionLabel">Session</span>
   </div>
   <div class="card">
-    <div class="card-title">Petsa ng Attendance</div>
+    <div class="card-title">Date of Attendance</div>
     <div class="date-row">
       <label for="attendanceDate">Date:</label>
       <input type="date" id="attendanceDate" />
     </div>
   </div>
   <div class="card">
-    <div class="card-title">I-check ang mga Present</div>
-    <div class="search-wrap">
+    <div class="card-title">Check the names of Presents</div>
+
+    <!-- Shown when recorded & NOT in edit mode -->
+    <div id="recordedNotice" style="display:none">
+      <div class="recorded-notice">
+        <div>
+          <div class="recorded-notice-text">✅ Attendance already recorded.</div>
+          
+        </div>
+        <button class="btn-edit" onclick="enterEditMode()">Edit</button>
+      </div>
+    </div>
+
+    <!-- Shown when in edit mode -->
+    <div id="editModeBanner" style="display:none" class="edit-mode-banner">
+      ✏️ Edit mode — make changes then click Save Changes.
+    </div>
+
+    <!-- Search (hidden when recorded & not editing) -->
+    <div class="search-wrap" id="searchWrap">
       <span class="search-icon">🔍</span>
-      <input type="text" id="attendanceSearch" placeholder="Hanapin ang pangalan..." oninput="filterCheckList()" />
+      <input type="text" id="attendanceSearch" placeholder="Search" oninput="filterCheckList()" />
     </div>
     <div class="search-count" id="searchCount"></div>
-    <div class="check-list" id="checkList"><div class="empty">Mag-enroll muna ng names.</div></div>
+
+    <div class="check-list" id="checkList"><div class="empty">Enroll Name First.</div></div>
+
     <button class="btn-success" id="submitBtn" onclick="submitAttendance()" disabled>Submit Attendance</button>
+    <button class="btn-update" id="updateBtn" onclick="updateAttendance()" style="display:none">💾 Save Changes</button>
+    <button class="btn-cancel" id="cancelBtn" onclick="cancelEditMode()" style="display:none">Cancel</button>
   </div>
 </div>
 
 <!-- RESULTS -->
 <div id="tab-results" class="panel">
-  <div id="resultsContent"><div class="empty">Wala pang attendance.</div></div>
+  <div id="resultsContent"><div class="empty">No attendance yet.</div></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDxnrUyzFXGjTSAB3_f03BFVni8GUJIbmY",
@@ -164,11 +188,11 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // ── State ──────────────────────────────────────────────
   let names = [];
-  let sessions = []; // { date: 'YYYY-MM-DD', present: Set }
+  let sessions = [];
+  let editMode = false;
 
-  // ── Helpers ────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────────────
   function formatDate(dateStr) {
     if (!dateStr) return 'Unknown Date';
     const [y, m, d] = dateStr.split('-');
@@ -187,49 +211,36 @@
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
+    setTimeout(() => t.classList.remove('show'), 2400);
   }
 
   function sid(name) { return 'ci_' + name.replace(/[^a-zA-Z0-9]/g, '_'); }
 
-  // ── Firebase: Save names ───────────────────────────────
+  // ── Firebase ─────────────────────────────────────────
   async function saveNames() {
     await setDoc(doc(db, 'attendance', 'names'), { list: names });
   }
 
-  // ── Firebase: Save a session ───────────────────────────
   async function saveSession(dateStr, presentSet) {
     await setDoc(doc(db, 'sessions', dateStr), { present: Array.from(presentSet) });
   }
 
-  // ── Firebase: Delete a session ─────────────────────────
-  async function deleteSession(dateStr) {
-    await deleteDoc(doc(db, 'sessions', dateStr));
-  }
-
-  // ── Firebase: Real-time listeners ─────────────────────
   function startListeners() {
-    // Listen to names
     onSnapshot(doc(db, 'attendance', 'names'), snap => {
       names = snap.exists() ? (snap.data().list || []) : [];
       renderEnrollList();
       renderCheckList();
     });
-
-    // Listen to sessions collection
     onSnapshot(collection(db, 'sessions'), snap => {
-      sessions = snap.docs.map(d => ({
-        date: d.id,
-        present: new Set(d.data().present || [])
-      }));
+      sessions = snap.docs.map(d => ({ date: d.id, present: new Set(d.data().present || []) }));
       sessions.sort((a, b) => a.date.localeCompare(b.date));
       renderResults();
-      renderCheckList();
+      if (!editMode) renderCheckList();
       document.getElementById('loadingOverlay').style.display = 'none';
     });
   }
 
-  // ── UI ────────────────────────────────────────────────
+  // ── Tabs ─────────────────────────────────────────────
   function switchTab(tab) {
     document.querySelectorAll('.tab').forEach((t, i) => {
       t.classList.toggle('active', ['enroll','attendance','results'][i] === tab);
@@ -237,20 +248,22 @@
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
     if (tab === 'attendance') {
-      renderCheckList();
+      editMode = false;
       document.getElementById('attendanceSearch').value = '';
       document.getElementById('searchCount').textContent = '';
+      renderCheckList();
     }
     if (tab === 'results') renderResults();
   }
   window.switchTab = switchTab;
 
+  // ── Enroll ────────────────────────────────────────────
   async function addName() {
     const input = document.getElementById('nameInput');
     const val = input.value.trim();
     if (!val) return;
     if (names.map(n => n.toLowerCase()).includes(val.toLowerCase())) {
-      showToast('⚠️ Nandoon na ang pangalan!'); return;
+      showToast('⚠️ Name already exists!'); return;
     }
     names.push(val);
     input.value = '';
@@ -269,7 +282,7 @@
   function renderEnrollList() {
     const list = document.getElementById('nameList');
     document.getElementById('enrollCount').textContent = names.length;
-    if (!names.length) { list.innerHTML = '<div class="empty">Wala pang naka-enroll.</div>'; return; }
+    if (!names.length) { list.innerHTML = '<div class="empty">Empty.</div>'; return; }
     list.innerHTML = names.map((n, i) => `
       <div class="name-item">
         <span class="num">${i+1}</span>
@@ -278,6 +291,7 @@
       </div>`).join('');
   }
 
+  // ── Search ────────────────────────────────────────────
   function filterCheckList() {
     const query = document.getElementById('attendanceSearch').value.trim().toLowerCase();
     const items = document.querySelectorAll('#checkList .check-item');
@@ -289,59 +303,127 @@
       item.classList.toggle('hidden', !match);
       if (match) visible++;
     });
-    const countEl = document.getElementById('searchCount');
-    countEl.textContent = query ? `${visible} result${visible !== 1 ? 's' : ''} found` : '';
+    document.getElementById('searchCount').textContent = query ? `${visible} result${visible !== 1 ? 's' : ''} found` : '';
   }
   window.filterCheckList = filterCheckList;
 
+  // ── Edit mode ─────────────────────────────────────────
+  function enterEditMode() {
+    editMode = true;
+    renderCheckList();
+  }
+  window.enterEditMode = enterEditMode;
+
+  function cancelEditMode() {
+    editMode = false;
+    document.getElementById('attendanceSearch').value = '';
+    document.getElementById('searchCount').textContent = '';
+    renderCheckList();
+  }
+  window.cancelEditMode = cancelEditMode;
+
+  // ── Render checklist ──────────────────────────────────
   function renderCheckList() {
     const list = document.getElementById('checkList');
-    const btn = document.getElementById('submitBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const updateBtn = document.getElementById('updateBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const recordedNotice = document.getElementById('recordedNotice');
+    const editBanner = document.getElementById('editModeBanner');
+    const searchWrap = document.getElementById('searchWrap');
     const dateInput = document.getElementById('attendanceDate');
-    if (!dateInput.value) dateInput.value = todayStr();
 
+    if (!dateInput.value) dateInput.value = todayStr();
     const selectedDate = dateInput.value;
-    const alreadyRecorded = sessions.find(s => s.date === selectedDate);
+    const recorded = sessions.find(s => s.date === selectedDate);
+
     document.getElementById('sessionLabel').textContent = formatDate(selectedDate);
 
+    // Reset all UI
+    recordedNotice.style.display = 'none';
+    editBanner.style.display = 'none';
+    submitBtn.style.display = 'none';
+    updateBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    searchWrap.style.display = 'none';
+    list.innerHTML = '';
+
     if (!names.length) {
-      list.innerHTML = '<div class="empty">Mag-enroll muna ng names.</div>';
-      btn.disabled = true; return;
-    }
-    if (alreadyRecorded) {
-      list.innerHTML = '<div class="empty">May naka-record na para sa date na ito.</div>';
-      btn.disabled = true;
-      btn.textContent = 'Date already recorded';
+      list.innerHTML = '<div class="empty">Enroll Name First.</div>';
       return;
     }
+
+    // ── Case 1: Date already recorded, NOT editing ────
+    if (recorded && !editMode) {
+      recordedNotice.style.display = 'block';
+      // Names are hidden — just show the notice, no list
+      return;
+    }
+
+    // ── Case 2: Edit mode ─────────────────────────────
+    if (recorded && editMode) {
+      editBanner.style.display = 'block';
+      searchWrap.style.display = 'block';
+      updateBtn.style.display = 'block';
+      cancelBtn.style.display = 'block';
+
+      list.innerHTML = names.map(n => {
+        const isPresent = recorded.present.has(n);
+        return `
+          <div class="check-item ${isPresent ? 'checked' : ''}" id="${sid(n)}" onclick="this.classList.toggle('checked')">
+            <div class="checkbox"><span class="checkmark">✓</span></div>
+            <span class="check-name">${n}</span>
+          </div>`;
+      }).join('');
+
+      if (document.getElementById('attendanceSearch').value.trim()) filterCheckList();
+      return;
+    }
+
+    // ── Case 3: Fresh date ────────────────────────────
+    searchWrap.style.display = 'block';
+    submitBtn.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Attendance — ' + formatDate(selectedDate);
 
     list.innerHTML = names.map(n => `
       <div class="check-item" id="${sid(n)}" onclick="this.classList.toggle('checked')">
         <div class="checkbox"><span class="checkmark">✓</span></div>
         <span class="check-name">${n}</span>
       </div>`).join('');
-    btn.disabled = false;
-    btn.textContent = 'Submit Attendance — ' + formatDate(selectedDate);
+
     if (document.getElementById('attendanceSearch').value.trim()) filterCheckList();
   }
 
+  // ── Submit ────────────────────────────────────────────
   async function submitAttendance() {
-    const dateInput = document.getElementById('attendanceDate');
-    const selectedDate = dateInput.value || todayStr();
-    if (sessions.find(s => s.date === selectedDate)) {
-      showToast('⚠️ May naka-record na para sa date na ito!'); return;
-    }
+    const selectedDate = document.getElementById('attendanceDate').value || todayStr();
+    if (sessions.find(s => s.date === selectedDate)) { showToast('⚠️ Already recorded!'); return; }
     const present = new Set();
-    names.forEach(n => {
-      if (document.getElementById(sid(n))?.classList.contains('checked')) present.add(n);
-    });
+    names.forEach(n => { if (document.getElementById(sid(n))?.classList.contains('checked')) present.add(n); });
     await saveSession(selectedDate, present);
     showToast('✅ ' + formatDate(selectedDate) + ' saved! (' + present.size + ' present)');
     document.getElementById('attendanceSearch').value = '';
     document.getElementById('searchCount').textContent = '';
+    editMode = false;
   }
   window.submitAttendance = submitAttendance;
 
+  // ── Update ────────────────────────────────────────────
+  async function updateAttendance() {
+    const selectedDate = document.getElementById('attendanceDate').value || todayStr();
+    const present = new Set();
+    names.forEach(n => { if (document.getElementById(sid(n))?.classList.contains('checked')) present.add(n); });
+    await saveSession(selectedDate, present);
+    showToast('✅ ' + formatDate(selectedDate) + ' updated! (' + present.size + ' present)');
+    document.getElementById('attendanceSearch').value = '';
+    document.getElementById('searchCount').textContent = '';
+    editMode = false;
+    renderCheckList();
+  }
+  window.updateAttendance = updateAttendance;
+
+  // ── Results ───────────────────────────────────────────
   function getConsecutiveAbsent() {
     if (sessions.length < 3) return [];
     const flagged = [];
@@ -354,9 +436,7 @@
       if (streak.length >= 3) longestStreaks.push([...streak]);
       if (longestStreaks.length > 0) {
         let allWindows = [];
-        longestStreaks.forEach(st => {
-          for (let i = 0; i <= st.length - 3; i++) allWindows.push(st.slice(i, i+3));
-        });
+        longestStreaks.forEach(st => { for (let i = 0; i <= st.length-3; i++) allWindows.push(st.slice(i,i+3)); });
         flagged.push({ name, windows: allWindows });
       }
     });
@@ -365,11 +445,9 @@
 
   function renderResults() {
     const container = document.getElementById('resultsContent');
-    if (!sessions.length) { container.innerHTML = '<div class="empty">Wala pang attendance.</div>'; return; }
+    if (!sessions.length) { container.innerHTML = '<div class="empty">No attendance yet.</div>'; return; }
     const flagged = getConsecutiveAbsent();
-    let html = '';
-
-    html += `<div class="stats-row">
+    let html = `<div class="stats-row">
       <div class="stat-box"><div class="stat-num" style="color:var(--accent)">${sessions.length}</div><div class="stat-label">Days Recorded</div></div>
       <div class="stat-box"><div class="stat-num" style="color:var(--green)">${names.length}</div><div class="stat-label">Enrolled</div></div>
       <div class="stat-box"><div class="stat-num" style="color:var(--red)">${flagged.length}</div><div class="stat-label">Flagged</div></div>
@@ -378,14 +456,13 @@
     if (flagged.length) {
       html += `<div class="flag-card"><div class="flag-card-title">🚨 3 Consecutive Absences Detected</div>`;
       flagged.forEach(f => {
-        html += `<div class="flag-item"><div>
-          <div class="flag-item-name">✗ ${f.name}</div>
+        html += `<div class="flag-item"><div><div class="flag-item-name">✗ ${f.name}</div>
           ${f.windows.map(w => `<div class="flag-item-days">Absent: ${w.map(formatDate).join(', ')}</div>`).join('')}
         </div></div>`;
       });
       html += `</div>`;
     } else if (sessions.length >= 3) {
-      html += `<div style="background:#22c55e14;border:1px solid #22c55e40;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:var(--green);margin-bottom:8px">✅ Walang 3 consecutive absences so far.</div>`;
+      html += `<div style="background:#22c55e14;border:1px solid #22c55e40;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:var(--green);margin-bottom:8px">✅ No 3 consecutive absences so far.</div>`;
     }
 
     html += `<div class="divider"></div>`;
@@ -405,7 +482,12 @@
   }
 
   // ── Init ──────────────────────────────────────────────
-  document.getElementById('attendanceDate').addEventListener('change', renderCheckList);
+  document.getElementById('attendanceDate').addEventListener('change', () => {
+    editMode = false;
+    document.getElementById('attendanceSearch').value = '';
+    document.getElementById('searchCount').textContent = '';
+    renderCheckList();
+  });
   startListeners();
 </script>
 </body>

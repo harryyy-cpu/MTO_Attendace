@@ -91,13 +91,13 @@
   <div class="card">
     <div class="card-title">Add Name</div>
     <div class="input-row">
-      <input type="text" id="nameInput" placeholder="Enter Full Name" onkeydown="if(event.key==='Enter')addName()" />
+      <input type="text" id="nameInput" placeholder="Enter full name..." onkeydown="if(event.key==='Enter')addName()" />
       <button class="btn-primary" onclick="addName()">Add</button>
     </div>
   </div>
   <div class="card">
     <div class="card-title">Enrolled (<span id="enrollCount">0</span>)</div>
-    <div class="name-list" id="nameList"><div class="empty">Empty.</div></div>
+    <div class="name-list" id="nameList"><div class="empty">Wala pang naka-enroll.</div></div>
   </div>
 </div>
 
@@ -108,7 +108,7 @@
     <span id="sessionLabel">Session</span>
   </div>
   <div class="card">
-    <div class="card-title">Date of Attendance</div>
+    <div class="card-title">Petsa ng Attendance</div>
     <div class="date-row">
       <label for="attendanceDate">Date:</label>
       <input type="date" id="attendanceDate" />
@@ -118,7 +118,7 @@
     <div class="card-title">I-check ang mga Present</div>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input type="text" id="attendanceSearch" placeholder="Search" oninput="filterCheckList()" />
+      <input type="text" id="attendanceSearch" placeholder="Hanapin ang pangalan..." oninput="filterCheckList()" />
     </div>
     <div class="search-count" id="searchCount"></div>
     <div class="check-list" id="checkList"><div class="empty">Mag-enroll muna ng names.</div></div>
@@ -234,7 +234,8 @@
     const items = document.querySelectorAll('#checkList .check-item');
     let visible = 0;
     items.forEach(item => {
-      const name = item.querySelector('span:last-child').textContent.toLowerCase();
+      const nameEl = item.querySelector('.check-name');
+      const name = nameEl ? nameEl.textContent.toLowerCase() : '';
       const match = name.includes(query);
       item.classList.toggle('hidden', !match);
       if (match) visible++;
@@ -274,7 +275,7 @@
     list.innerHTML = names.map(n => `
       <div class="check-item" id="${sid(n)}" onclick="this.classList.toggle('checked')">
         <div class="checkbox"><span class="checkmark">✓</span></div>
-        <span>${n}</span>
+        <span class="check-name">${n}</span>
       </div>`).join('');
     btn.disabled = false;
     btn.textContent = 'Submit Attendance — ' + formatDate(selectedDate);

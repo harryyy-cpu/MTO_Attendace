@@ -74,6 +74,8 @@
     .check-item.hidden { display: none; }
     .search-count { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -91,13 +93,13 @@
   <div class="card">
     <div class="card-title">Add Name</div>
     <div class="input-row">
-      <input type="text" id="nameInput" placeholder="Enter Full Name" onkeydown="if(event.key==='Enter')addName()" />
+      <input type="text" id="nameInput" placeholder="Enter full name..." onkeydown="if(event.key==='Enter')addName()" />
       <button class="btn-primary" onclick="addName()">Add</button>
     </div>
   </div>
   <div class="card">
     <div class="card-title">Enrolled (<span id="enrollCount">0</span>)</div>
-    <div class="name-list" id="nameList"><div class="empty">Empty.</div></div>
+    <div class="name-list" id="nameList"><div class="empty">Wala pang naka-enroll.</div></div>
   </div>
 </div>
 
@@ -108,7 +110,7 @@
     <span id="sessionLabel">Session</span>
   </div>
   <div class="card">
-    <div class="card-title">Date of Attendance</div>
+    <div class="card-title">Petsa ng Attendance</div>
     <div class="date-row">
       <label for="attendanceDate">Date:</label>
       <input type="date" id="attendanceDate" />
@@ -118,7 +120,7 @@
     <div class="card-title">I-check ang mga Present</div>
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
-      <input type="text" id="attendanceSearch" placeholder="Search" oninput="filterCheckList()" />
+      <input type="text" id="attendanceSearch" placeholder="Hanapin ang pangalan..." oninput="filterCheckList()" />
     </div>
     <div class="search-count" id="searchCount"></div>
     <div class="check-list" id="checkList"><div class="empty">Mag-enroll muna ng names.</div></div>
@@ -154,6 +156,57 @@
     return `${y}-${m}-${d}`;
   }
 
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  const firebaseEnabled = firebaseConfig.apiKey !== 'YOUR_API_KEY';
+  let firebaseRef = null;
+
+  function initFirebase() {
+    if (!firebaseEnabled) return;
+    firebase.initializeApp(firebaseConfig);
+    firebaseRef = firebase.database().ref('attendanceShared');
+    firebaseRef.on('value', snapshot => {
+      const data = snapshot.val();
+      if (!data) return;
+      if (Array.isArray(data.names)) names = data.names;
+      if (Array.isArray(data.sessions)) {
+        sessions = data.sessions.map(s => ({ date: s.date, present: new Set(s.present) }));
+      }
+      renderEnrollList();
+      renderResults();
+      if (document.getElementById('tab-attendance').classList.contains('active')) renderCheckList();
+    });
+  }
+
+  function saveLocalData() {
+    localStorage.setItem('attendanceNames', JSON.stringify(names));
+    const toSave = sessions.map(s => ({ date: s.date, present: Array.from(s.present) }));
+    localStorage.setItem('attendanceSessions', JSON.stringify(toSave));
+  }
+
+  function saveSharedData() {
+    if (!firebaseEnabled || !firebaseRef) return;
+    const shared = {
+      names,
+      sessions: sessions.map(s => ({ date: s.date, present: Array.from(s.present) }))
+    };
+    firebaseRef.set(shared).catch(() => {
+      // ignore shared save errors and keep local storage
+    });
+  }
+
+  function saveAllData() {
+    saveLocalData();
+    saveSharedData();
+  }
+
   function loadData() {
     const savedNames = localStorage.getItem('attendanceNames');
     const savedSessions = localStorage.getItem('attendanceSessions');
@@ -166,12 +219,9 @@
     if (sessions.length > 0) renderResults();
   }
 
-  function saveNames() { localStorage.setItem('attendanceNames', JSON.stringify(names)); }
+  function saveNames() { saveAllData(); }
 
-  function saveSessions() {
-    const toSave = sessions.map(s => ({ date: s.date, present: Array.from(s.present) }));
-    localStorage.setItem('attendanceSessions', JSON.stringify(toSave));
-  }
+  function saveSessions() { saveAllData(); }
 
   function showToast(msg) {
     const t = document.getElementById('toast');
@@ -203,14 +253,14 @@
     }
     names.push(val);
     input.value = '';
-    saveNames();
+    saveAllData();
     renderEnrollList();
     showToast('✅ "' + val + '" added');
   }
 
   function removeName(i) {
     const removed = names.splice(i, 1)[0];
-    saveNames();
+    saveAllData();
     renderEnrollList();
     showToast('🗑️ "' + removed + '" removed');
   }
@@ -299,7 +349,7 @@
 
     sessions.push({ date: selectedDate, present });
     sessions.sort((a, b) => a.date.localeCompare(b.date));
-    saveSessions();
+    saveAllData();
     showToast('✅ ' + formatDate(selectedDate) + ' saved! (' + present.size + ' present)');
     document.getElementById('attendanceSearch').value = '';
     document.getElementById('searchCount').textContent = '';
@@ -384,6 +434,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    initFirebase();
     loadData();
     document.getElementById('attendanceDate').addEventListener('change', renderCheckList);
   });

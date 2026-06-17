@@ -68,6 +68,11 @@
     .all-present-note { font-size: 0.78rem; color: var(--muted); font-style: italic; }
     .date-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
     .date-row label { font-size: 0.8rem; color: var(--label); white-space: nowrap; }
+    .search-wrap { position: relative; margin-bottom: 12px; }
+    .search-wrap input { width: 100%; padding-left: 36px; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.9rem; pointer-events: none; }
+    .check-item.hidden { display: none; }
+    .search-count { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -111,6 +116,11 @@
   </div>
   <div class="card">
     <div class="card-title">I-check ang mga Present</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="attendanceSearch" placeholder="Hanapin ang pangalan..." oninput="filterCheckList()" />
+    </div>
+    <div class="search-count" id="searchCount"></div>
     <div class="check-list" id="checkList"><div class="empty">Mag-enroll muna ng names.</div></div>
     <button class="btn-success" id="submitBtn" onclick="submitAttendance()" disabled>Submit Attendance</button>
   </div>
@@ -125,7 +135,7 @@
 
 <script>
   let names = [];
-  let sessions = []; // each = { date: 'YYYY-MM-DD', present: Set }
+  let sessions = [];
 
   function formatDate(dateStr) {
     if (!dateStr) return 'Unknown Date';
@@ -176,7 +186,11 @@
     });
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
-    if (tab === 'attendance') renderCheckList();
+    if (tab === 'attendance') {
+      renderCheckList();
+      document.getElementById('attendanceSearch').value = '';
+      document.getElementById('searchCount').textContent = '';
+    }
     if (tab === 'results') renderResults();
   }
 
@@ -215,6 +229,24 @@
 
   function sid(name) { return 'ci_' + name.replace(/[^a-zA-Z0-9]/g, '_'); }
 
+  function filterCheckList() {
+    const query = document.getElementById('attendanceSearch').value.trim().toLowerCase();
+    const items = document.querySelectorAll('#checkList .check-item');
+    let visible = 0;
+    items.forEach(item => {
+      const name = item.querySelector('span:last-child').textContent.toLowerCase();
+      const match = name.includes(query);
+      item.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+    const countEl = document.getElementById('searchCount');
+    if (query) {
+      countEl.textContent = visible + ' result' + (visible !== 1 ? 's' : '') + ' found';
+    } else {
+      countEl.textContent = '';
+    }
+  }
+
   function renderCheckList() {
     const list = document.getElementById('checkList');
     const btn = document.getElementById('submitBtn');
@@ -246,6 +278,9 @@
       </div>`).join('');
     btn.disabled = false;
     btn.textContent = 'Submit Attendance — ' + formatDate(selectedDate);
+
+    // Re-apply search filter if there's a query
+    if (document.getElementById('attendanceSearch').value.trim()) filterCheckList();
   }
 
   function submitAttendance() {
@@ -265,11 +300,12 @@
     sessions.sort((a, b) => a.date.localeCompare(b.date));
     saveSessions();
     showToast('✅ ' + formatDate(selectedDate) + ' saved! (' + present.size + ' present)');
+    document.getElementById('attendanceSearch').value = '';
+    document.getElementById('searchCount').textContent = '';
     renderCheckList();
     renderResults();
   }
 
-  // Returns flagged names with 3+ consecutive absences (by session order)
   function getConsecutiveAbsent() {
     if (sessions.length < 3) return [];
     const flagged = [];
@@ -329,7 +365,6 @@
     html += `<div class="divider"></div>`;
 
     sessions.forEach(s => {
-      const absent = names.filter(n => !s.present.has(n));
       html += `<div class="results-session">
         <div class="results-session-header">
           <div class="session-label">${formatDate(s.date)}</div>
@@ -347,7 +382,6 @@
     container.innerHTML = html;
   }
 
-  // Re-render checklist when date changes
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
     document.getElementById('attendanceDate').addEventListener('change', renderCheckList);

@@ -24,9 +24,9 @@
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
     .card-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--label); margin-bottom: 14px; }
     .input-row { display: flex; gap: 8px; }
-    input[type="text"], input[type="date"] { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.15s; color-scheme: dark; }
-    input[type="text"]:focus, input[type="date"]:focus { border-color: var(--accent); }
-    input[type="text"]::placeholder { color: var(--muted); }
+    input[type="text"], input[type="date"], input[type="password"] { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.15s; color-scheme: dark; }
+    input[type="text"]:focus, input[type="date"]:focus, input[type="password"]:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
     button { padding: 10px 18px; border-radius: 8px; border: none; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
     .btn-primary { background: var(--accent); color: #fff; } .btn-primary:hover { background: #4a7aee; }
     .btn-danger { background: transparent; border: 1px solid var(--border); color: var(--red); padding: 4px 10px; font-size: 0.75rem; } .btn-danger:hover { background: #ef444422; border-color: var(--red); }
@@ -35,27 +35,34 @@
     .btn-update { background: var(--accent); color: #fff; width: 100%; padding: 12px; font-size: 0.95rem; border-radius: 10px; margin-top: 12px; } .btn-update:hover { background: #4a7aee; }
     .btn-cancel { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 100%; padding: 10px; font-size: 0.85rem; border-radius: 10px; margin-top: 8px; } .btn-cancel:hover { background: var(--surface2); }
 
-    /* ── Name list with drag ── */
+    /* LOGIN */
+    #loginScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 88vh; }
+    .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px 28px; width: 100%; max-width: 360px; }
+    .login-logo { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 4px; }
+    .login-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 24px; }
+    .login-field { margin-bottom: 14px; }
+    .login-field label { font-size: 0.78rem; color: var(--label); display: block; margin-bottom: 6px; }
+    .login-field input { width: 100%; }
+    .login-error { font-size: 0.8rem; color: var(--red); background: #ef444414; border: 1px solid #ef444440; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; display: none; }
+    .btn-login { background: var(--accent); color: #fff; width: 100%; padding: 12px; font-size: 0.95rem; border-radius: 10px; margin-top: 4px; }
+    .btn-login:hover { background: #4a7aee; }
+    .btn-login:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
+
+    /* APP HEADER */
+    #appHeader { display: none; }
+    #appHeader.visible { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); font-size: 0.75rem; padding: 5px 12px; border-radius: 6px; }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* NAME LIST */
     .name-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
-    .name-item {
-      display: flex; align-items: center; justify-content: space-between;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 8px; padding: 8px 12px; font-size: 0.88rem;
-      cursor: default; user-select: none; transition: border-color 0.12s, box-shadow 0.12s;
-    }
+    .name-item { display: flex; align-items: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; cursor: default; user-select: none; transition: border-color 0.12s, box-shadow 0.12s; }
     .name-item.dragging { opacity: 0.4; border-color: var(--accent); }
     .name-item.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px #5b8cff44; }
-    .drag-handle {
-      display: flex; flex-direction: column; gap: 3px;
-      margin-right: 10px; padding: 2px 4px; cursor: grab; opacity: 0.4;
-      transition: opacity 0.12s; flex-shrink: 0;
-    }
+    .drag-handle { display: flex; flex-direction: column; gap: 3px; margin-right: 10px; padding: 2px 4px; cursor: grab; opacity: 0.4; transition: opacity 0.12s; flex-shrink: 0; }
     .drag-handle:hover { opacity: 1; }
     .drag-handle:active { cursor: grabbing; }
-    .drag-handle span {
-      display: block; width: 18px; height: 2px;
-      background: var(--label); border-radius: 2px;
-    }
+    .drag-handle span { display: block; width: 18px; height: 2px; background: var(--label); border-radius: 2px; }
     .name-item .num { color: var(--muted); font-size: 0.75rem; margin-right: 10px; min-width: 20px; }
     .name-item .name-text { flex: 1; }
 
@@ -88,10 +95,10 @@
     .stat-box { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
     .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; }
     .stat-label { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 20px; font-size: 0.85rem; color: var(--text); z-index: 999; transition: transform 0.25s ease; white-space: nowrap; box-shadow: 0 8px 30px #00000066; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 20px; font-size: 0.85rem; color: var(--text); z-index: 9998; transition: transform 0.25s ease; white-space: nowrap; box-shadow: 0 8px 30px #00000066; }
     .toast.show { transform: translateX(-50%) translateY(0); }
     ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-    .date-row { display: flex; gap: 8px; align-items: center; margin-bottom: 0; }
+    .date-row { display: flex; gap: 8px; align-items: center; }
     .date-row label { font-size: 0.8rem; color: var(--label); white-space: nowrap; }
     .search-wrap { position: relative; margin-bottom: 12px; }
     .search-wrap input { width: 100%; padding-left: 36px; }
@@ -100,97 +107,140 @@
     .loading-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 9999; }
     .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 0.85rem; color: var(--muted); }
     .recorded-notice { display: flex; align-items: center; justify-content: space-between; background: #22c55e10; border: 1px solid #22c55e40; border-radius: 10px; padding: 12px 14px; margin-bottom: 4px; }
     .recorded-notice-text { font-size: 0.83rem; color: var(--green); font-weight: 500; }
-    .recorded-notice-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
     .edit-mode-banner { background: #5b8cff18; border: 1px solid #5b8cff50; border-radius: 10px; padding: 10px 14px; font-size: 0.82rem; color: var(--accent); margin-bottom: 12px; }
+
+    /* CONFIRM MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: #00000088; display: flex; align-items: center; justify-content: center; z-index: 9000; opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 16px; }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; max-width: 320px; width: 100%; box-shadow: 0 20px 60px #00000099; transform: scale(0.95); transition: transform 0.2s; }
+    .modal-overlay.show .modal { transform: scale(1); }
+    .modal-icon { font-size: 2rem; margin-bottom: 10px; }
+    .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .modal-msg { font-size: 0.83rem; color: var(--label); margin-bottom: 20px; line-height: 1.5; }
+    .modal-name-highlight { color: var(--text); font-weight: 600; }
+    .modal-btns { display: flex; gap: 8px; }
+    .modal-btns button { flex: 1; padding: 10px; font-size: 0.85rem; }
+    .btn-modal-cancel { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; }
+    .btn-modal-cancel:hover { background: var(--border); }
+    .btn-modal-confirm { background: var(--red); color: #fff; border-radius: 8px; }
+    .btn-modal-confirm:hover { background: #dc2626; }
+
+    #appContent { display: none; }
+    #appContent.visible { display: block; }
   </style>
 </head>
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text"></div>
 </div>
 
-<h1>📋 MTO Attendance System</h1>
-<p class="subtitle">Attendance tracker • flags 3 consecutive absences</p>
-
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('enroll')">Enroll</button>
-  <button class="tab" onclick="switchTab('attendance')">Attendance</button>
-  <button class="tab" onclick="switchTab('results')">Results</button>
-</div>
-
-<!-- ENROLL -->
-<div id="tab-enroll" class="panel active">
-  <div class="card">
-    <div class="card-title">Add Name</div>
-    <div class="input-row">
-      <input type="text" id="nameInput" placeholder="Enter Full Name" onkeydown="if(event.key==='Enter')addName()" />
-      <button class="btn-primary" onclick="addName()">Add</button>
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">📋 MTO Attendance</div>
+    <div class="login-sub">Admin login required</div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="Enter username" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()" />
     </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Enrolled (<span id="enrollCount">0</span>)</div>
-    <div class="name-list" id="nameList"><div class="empty">Empty.</div></div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">Log In</button>
   </div>
 </div>
 
-<!-- ATTENDANCE -->
-<div id="tab-attendance" class="panel">
-  <div class="session-badge">
-    <div class="dot"></div>
-    <span id="sessionLabel">Session</span>
-  </div>
-  <div class="card">
-    <div class="card-title">Date of Attendance</div>
-    <div class="date-row">
-      <label for="attendanceDate">Date:</label>
-      <input type="date" id="attendanceDate" />
+<!-- APP -->
+<div id="appContent">
+  <div id="appHeader">
+    <div>
+      <h1>📋 MTO Attendance System</h1>
+      <p class="subtitle">Attendance tracker • flags 3 consecutive absences</p>
     </div>
+    <button class="logout-btn" onclick="doLogout()">Log out</button>
   </div>
-  <div class="card">
-    <div class="card-title">Check the names of Presents</div>
 
-    <div id="recordedNotice" style="display:none">
-      <div class="recorded-notice">
-        <div>
-          <div class="recorded-notice-text">✅ Attendance already recorded.</div>
-        </div>
-        <button class="btn-edit" onclick="enterEditMode()">Edit</button>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('enroll')">Enroll</button>
+    <button class="tab" onclick="switchTab('attendance')">Attendance</button>
+    <button class="tab" onclick="switchTab('results')">Results</button>
+  </div>
+
+  <!-- ENROLL -->
+  <div id="tab-enroll" class="panel active">
+    <div class="card">
+      <div class="card-title">Add Name</div>
+      <div class="input-row">
+        <input type="text" id="nameInput" placeholder="Enter Full Name" onkeydown="if(event.key==='Enter')addName()" />
+        <button class="btn-primary" onclick="addName()">Add</button>
       </div>
     </div>
-
-    <div id="editModeBanner" style="display:none" class="edit-mode-banner">
-      ✏️ Edit mode — make changes then click Save Changes.
+    <div class="card">
+      <div class="card-title">Enrolled (<span id="enrollCount">0</span>) — drag ≡ to reorder</div>
+      <div class="name-list" id="nameList"><div class="empty">Empty.</div></div>
     </div>
+  </div>
 
-    <div class="search-wrap" id="searchWrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="attendanceSearch" placeholder="Search" oninput="filterCheckList()" />
+  <!-- ATTENDANCE -->
+  <div id="tab-attendance" class="panel">
+    <div class="session-badge"><div class="dot"></div><span id="sessionLabel">Session</span></div>
+    <div class="card">
+      <div class="card-title">Date of Attendance</div>
+      <div class="date-row">
+        <label for="attendanceDate">Date:</label>
+        <input type="date" id="attendanceDate" />
+      </div>
     </div>
-    <div class="search-count" id="searchCount"></div>
+    <div class="card">
+      <div class="card-title">Check the names of Presents</div>
+      <div id="recordedNotice" style="display:none">
+        <div class="recorded-notice">
+          <div><div class="recorded-notice-text">✅ Attendance already recorded.</div></div>
+          <button class="btn-edit" onclick="enterEditMode()">Edit</button>
+        </div>
+      </div>
+      <div id="editModeBanner" style="display:none" class="edit-mode-banner">✏️ Edit mode — make changes then click Save Changes.</div>
+      <div class="search-wrap" id="searchWrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="attendanceSearch" placeholder="Search" oninput="filterCheckList()" />
+      </div>
+      <div class="search-count" id="searchCount"></div>
+      <div class="check-list" id="checkList"><div class="empty">Enroll Name First.</div></div>
+      <button class="btn-success" id="submitBtn" onclick="submitAttendance()" disabled>Submit Attendance</button>
+      <button class="btn-update" id="updateBtn" onclick="updateAttendance()" style="display:none">💾 Save Changes</button>
+      <button class="btn-cancel" id="cancelBtn" onclick="cancelEditMode()" style="display:none">Cancel</button>
+    </div>
+  </div>
 
-    <div class="check-list" id="checkList"><div class="empty">Enroll Name First.</div></div>
-
-    <button class="btn-success" id="submitBtn" onclick="submitAttendance()" disabled>Submit Attendance</button>
-    <button class="btn-update" id="updateBtn" onclick="updateAttendance()" style="display:none">💾 Save Changes</button>
-    <button class="btn-cancel" id="cancelBtn" onclick="cancelEditMode()" style="display:none">Cancel</button>
+  <!-- RESULTS -->
+  <div id="tab-results" class="panel">
+    <div id="resultsContent"><div class="empty">No attendance yet.</div></div>
   </div>
 </div>
 
-<!-- RESULTS -->
-<div id="tab-results" class="panel">
-  <div id="resultsContent"><div class="empty">No attendance yet.</div></div>
+<!-- CONFIRM REMOVE MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title">Remove Name?</div>
+    <div class="modal-msg">Are you sure you want to remove <span class="modal-name-highlight" id="modalNameText"></span>? This cannot be undone.</div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-modal-confirm" onclick="confirmRemove()">Remove</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDxnrUyzFXGjTSAB3_f03BFVni8GUJIbmY",
@@ -207,6 +257,75 @@
   let names = [];
   let sessions = [];
   let editMode = false;
+  let pendingRemoveIndex = null;
+  let unsubNames = null;
+  let unsubSessions = null;
+
+  const SESSION_KEY = 'mto_admin_logged_in';
+  function isLoggedIn() { return sessionStorage.getItem(SESSION_KEY) === 'true'; }
+  function setLoggedIn(v) { v ? sessionStorage.setItem(SESSION_KEY, 'true') : sessionStorage.removeItem(SESSION_KEY); }
+
+  // ── Boot ────────────────────────────────────────────
+  if (isLoggedIn()) {
+    showApp();
+  } else {
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+
+  // ── Login ────────────────────────────────────────────
+  async function doLogin() {
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const btn  = document.getElementById('loginBtn');
+    const err  = document.getElementById('loginError');
+    if (!user || !pass) { err.textContent = 'Please enter username and password.'; err.style.display = 'block'; return; }
+    btn.disabled = true; btn.textContent = 'Logging in...'; err.style.display = 'none';
+    try {
+      const snap = await getDoc(doc(db, 'admin', 'credentials'));
+      if (!snap.exists()) {
+        // First run — create the admin account
+        await setDoc(doc(db, 'admin', 'credentials'), { username: user, password: pass });
+        setLoggedIn(true); showApp();
+        showToast('✅ Admin account created!');
+        return;
+      }
+      const d = snap.data();
+      if (d.username === user && d.password === pass) {
+        setLoggedIn(true); showApp();
+      } else {
+        err.textContent = 'Incorrect username or password.'; err.style.display = 'block';
+      }
+    } catch(e) {
+      err.textContent = 'Connection error. Try again.'; err.style.display = 'block';
+    }
+    btn.disabled = false; btn.textContent = 'Log In';
+  }
+  window.doLogin = doLogin;
+
+  function showApp() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'none';
+    const ac = document.getElementById('appContent');
+    ac.classList.add('visible'); ac.style.display = 'block';
+    document.getElementById('appHeader').classList.add('visible');
+    startListeners();
+  }
+
+  function doLogout() {
+    setLoggedIn(false);
+    if (unsubNames) unsubNames();
+    if (unsubSessions) unsubSessions();
+    names = []; sessions = [];
+    document.getElementById('appContent').classList.remove('visible');
+    document.getElementById('appContent').style.display = 'none';
+    document.getElementById('appHeader').classList.remove('visible');
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+  window.doLogout = doLogout;
 
   // ── Helpers ──────────────────────────────────────────
   function formatDate(dateStr) {
@@ -217,59 +336,41 @@
     const dt = new Date(y, m - 1, d);
     return `${days[dt.getDay()]}, ${months[m-1]} ${parseInt(d)}, ${y}`;
   }
-
   function todayStr() {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const n = new Date();
+    return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
   }
-
   function showToast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    t.textContent = msg; t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2400);
   }
-
   function sid(name) { return 'ci_' + name.replace(/[^a-zA-Z0-9]/g, '_'); }
 
   // ── Firebase ─────────────────────────────────────────
-  async function saveNames() {
-    await setDoc(doc(db, 'attendance', 'names'), { list: names });
-  }
-
-  async function saveSession(dateStr, presentSet) {
-    await setDoc(doc(db, 'sessions', dateStr), { present: Array.from(presentSet) });
-  }
+  async function saveNames() { await setDoc(doc(db,'attendance','names'), { list: names }); }
+  async function saveSession(dateStr, presentSet) { await setDoc(doc(db,'sessions',dateStr), { present: Array.from(presentSet) }); }
 
   function startListeners() {
-    onSnapshot(doc(db, 'attendance', 'names'), snap => {
+    unsubNames = onSnapshot(doc(db,'attendance','names'), snap => {
       names = snap.exists() ? (snap.data().list || []) : [];
-      renderEnrollList();
-      renderCheckList();
+      renderEnrollList(); renderCheckList();
     });
-    onSnapshot(collection(db, 'sessions'), snap => {
+    unsubSessions = onSnapshot(collection(db,'sessions'), snap => {
       sessions = snap.docs.map(d => ({ date: d.id, present: new Set(d.data().present || []) }));
-      sessions.sort((a, b) => a.date.localeCompare(b.date));
+      sessions.sort((a,b) => a.date.localeCompare(b.date));
       renderResults();
       if (!editMode) renderCheckList();
-      document.getElementById('loadingOverlay').style.display = 'none';
     });
   }
 
   // ── Tabs ─────────────────────────────────────────────
   function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach((t, i) => {
-      t.classList.toggle('active', ['enroll','attendance','results'][i] === tab);
-    });
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['enroll','attendance','results'][i]===tab));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    if (tab === 'attendance') {
-      editMode = false;
-      document.getElementById('attendanceSearch').value = '';
-      document.getElementById('searchCount').textContent = '';
-      renderCheckList();
-    }
-    if (tab === 'results') renderResults();
+    document.getElementById('tab-'+tab).classList.add('active');
+    if (tab==='attendance') { editMode=false; document.getElementById('attendanceSearch').value=''; document.getElementById('searchCount').textContent=''; renderCheckList(); }
+    if (tab==='results') renderResults();
   }
   window.switchTab = switchTab;
 
@@ -278,22 +379,37 @@
     const input = document.getElementById('nameInput');
     const val = input.value.trim();
     if (!val) return;
-    if (names.map(n => n.toLowerCase()).includes(val.toLowerCase())) {
-      showToast('⚠️ Name already exists!'); return;
-    }
-    names.push(val);
-    input.value = '';
-    await saveNames();
-    showToast('✅ "' + val + '" added');
+    if (names.map(n=>n.toLowerCase()).includes(val.toLowerCase())) { showToast('⚠️ Name already exists!'); return; }
+    names.push(val); input.value = '';
+    await saveNames(); showToast('✅ "'+val+'" added');
   }
   window.addName = addName;
 
-  async function removeName(i) {
-    const removed = names.splice(i, 1)[0];
-    await saveNames();
-    showToast('🗑️ "' + removed + '" removed');
+  // ── Confirm remove modal ──────────────────────────────
+  function askRemove(i) {
+    pendingRemoveIndex = i;
+    document.getElementById('modalNameText').textContent = '"' + names[i] + '"';
+    document.getElementById('confirmModal').classList.add('show');
   }
-  window.removeName = removeName;
+  window.askRemove = askRemove;
+
+  function closeConfirm() {
+    pendingRemoveIndex = null;
+    document.getElementById('confirmModal').classList.remove('show');
+  }
+  window.closeConfirm = closeConfirm;
+
+  async function confirmRemove() {
+    if (pendingRemoveIndex === null) return;
+    const removed = names.splice(pendingRemoveIndex, 1)[0];
+    pendingRemoveIndex = null;
+    document.getElementById('confirmModal').classList.remove('show');
+    await saveNames();
+    showToast('🗑️ "'+removed+'" removed');
+  }
+  window.confirmRemove = confirmRemove;
+
+  document.getElementById('confirmModal').addEventListener('click', function(e) { if (e.target===this) closeConfirm(); });
 
   // ── Drag-to-reorder ───────────────────────────────────
   let dragSrcIndex = null;
@@ -302,172 +418,113 @@
     const list = document.getElementById('nameList');
     document.getElementById('enrollCount').textContent = names.length;
     if (!names.length) { list.innerHTML = '<div class="empty">Empty.</div>'; return; }
-
-    list.innerHTML = names.map((n, i) => `
+    list.innerHTML = names.map((n,i) => `
       <div class="name-item" draggable="true" data-index="${i}"
-           ondragstart="onDragStart(event,${i})"
-           ondragover="onDragOver(event)"
-           ondragleave="onDragLeave(event)"
-           ondrop="onDrop(event,${i})"
-           ondragend="onDragEnd(event)">
-        <div class="drag-handle" title="Drag to reorder">
-          <span></span><span></span><span></span>
-        </div>
+           ondragstart="onDragStart(event,${i})" ondragover="onDragOver(event)"
+           ondragleave="onDragLeave(event)" ondrop="onDrop(event,${i})" ondragend="onDragEnd(event)">
+        <div class="drag-handle" title="Drag to reorder"><span></span><span></span><span></span></div>
         <span class="num">${i+1}</span>
         <span class="name-text">${n}</span>
-        <button class="btn-danger" onclick="removeName(${i})">Remove</button>
+        <button class="btn-danger" onclick="askRemove(${i})">Remove</button>
       </div>`).join('');
   }
 
-  function onDragStart(e, i) {
-    dragSrcIndex = i;
-    e.currentTarget.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-  }
+  function onDragStart(e,i) { dragSrcIndex=i; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; }
   window.onDragStart = onDragStart;
-
-  function onDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    e.currentTarget.classList.add('drag-over');
-  }
+  function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect='move'; e.currentTarget.classList.add('drag-over'); }
   window.onDragOver = onDragOver;
-
-  function onDragLeave(e) {
-    e.currentTarget.classList.remove('drag-over');
-  }
+  function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
   window.onDragLeave = onDragLeave;
-
-  async function onDrop(e, targetIndex) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('drag-over');
-    if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
-    const moved = names.splice(dragSrcIndex, 1)[0];
-    names.splice(targetIndex, 0, moved);
-    dragSrcIndex = null;
-    renderEnrollList();
-    await saveNames();
-    showToast('↕️ Order updated');
+  async function onDrop(e,targetIndex) {
+    e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+    if (dragSrcIndex===null||dragSrcIndex===targetIndex) return;
+    const moved = names.splice(dragSrcIndex,1)[0];
+    names.splice(targetIndex,0,moved); dragSrcIndex=null;
+    renderEnrollList(); await saveNames(); showToast('↕️ Order updated');
   }
   window.onDrop = onDrop;
-
-  function onDragEnd(e) {
-    e.currentTarget.classList.remove('dragging');
-    document.querySelectorAll('.name-item').forEach(el => el.classList.remove('drag-over'));
-    dragSrcIndex = null;
-  }
+  function onDragEnd(e) { e.currentTarget.classList.remove('dragging'); document.querySelectorAll('.name-item').forEach(el=>el.classList.remove('drag-over')); dragSrcIndex=null; }
   window.onDragEnd = onDragEnd;
 
   // ── Search ────────────────────────────────────────────
   function filterCheckList() {
     const query = document.getElementById('attendanceSearch').value.trim().toLowerCase();
     const items = document.querySelectorAll('#checkList .check-item');
-    let visible = 0;
+    let visible=0;
     items.forEach(item => {
       const nameEl = item.querySelector('.check-name');
       const name = nameEl ? nameEl.textContent.toLowerCase() : '';
       const match = name.includes(query);
-      item.classList.toggle('hidden', !match);
-      if (match) visible++;
+      item.classList.toggle('hidden',!match);
+      if(match) visible++;
     });
-    document.getElementById('searchCount').textContent = query ? `${visible} result${visible !== 1 ? 's' : ''} found` : '';
+    document.getElementById('searchCount').textContent = query ? `${visible} result${visible!==1?'s':''} found` : '';
   }
   window.filterCheckList = filterCheckList;
 
   // ── Edit mode ─────────────────────────────────────────
-  function enterEditMode() {
-    editMode = true;
-    renderCheckList();
-  }
+  function enterEditMode() { editMode=true; renderCheckList(); }
   window.enterEditMode = enterEditMode;
-
-  function cancelEditMode() {
-    editMode = false;
-    document.getElementById('attendanceSearch').value = '';
-    document.getElementById('searchCount').textContent = '';
-    renderCheckList();
-  }
+  function cancelEditMode() { editMode=false; document.getElementById('attendanceSearch').value=''; document.getElementById('searchCount').textContent=''; renderCheckList(); }
   window.cancelEditMode = cancelEditMode;
 
   // ── Render checklist ──────────────────────────────────
   function renderCheckList() {
-    const list = document.getElementById('checkList');
-    const submitBtn = document.getElementById('submitBtn');
-    const updateBtn = document.getElementById('updateBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const recordedNotice = document.getElementById('recordedNotice');
-    const editBanner = document.getElementById('editModeBanner');
-    const searchWrap = document.getElementById('searchWrap');
-    const dateInput = document.getElementById('attendanceDate');
+    const list=document.getElementById('checkList');
+    const submitBtn=document.getElementById('submitBtn');
+    const updateBtn=document.getElementById('updateBtn');
+    const cancelBtn=document.getElementById('cancelBtn');
+    const recordedNotice=document.getElementById('recordedNotice');
+    const editBanner=document.getElementById('editModeBanner');
+    const searchWrap=document.getElementById('searchWrap');
+    const dateInput=document.getElementById('attendanceDate');
 
     if (!dateInput.value) dateInput.value = todayStr();
     const selectedDate = dateInput.value;
-    const recorded = sessions.find(s => s.date === selectedDate);
-
+    const recorded = sessions.find(s=>s.date===selectedDate);
     document.getElementById('sessionLabel').textContent = formatDate(selectedDate);
 
-    recordedNotice.style.display = 'none';
-    editBanner.style.display = 'none';
-    submitBtn.style.display = 'none';
-    updateBtn.style.display = 'none';
-    cancelBtn.style.display = 'none';
-    searchWrap.style.display = 'none';
-    list.innerHTML = '';
+    recordedNotice.style.display='none'; editBanner.style.display='none';
+    submitBtn.style.display='none'; updateBtn.style.display='none';
+    cancelBtn.style.display='none'; searchWrap.style.display='none';
+    list.innerHTML='';
 
-    if (!names.length) {
-      list.innerHTML = '<div class="empty">Enroll Name First.</div>';
-      return;
-    }
+    if (!names.length) { list.innerHTML='<div class="empty">Enroll Name First.</div>'; return; }
 
-    if (recorded && !editMode) {
-      recordedNotice.style.display = 'block';
-      return;
-    }
+    if (recorded && !editMode) { recordedNotice.style.display='block'; return; }
 
     if (recorded && editMode) {
-      editBanner.style.display = 'block';
-      searchWrap.style.display = 'block';
-      updateBtn.style.display = 'block';
-      cancelBtn.style.display = 'block';
-
+      editBanner.style.display='block'; searchWrap.style.display='block';
+      updateBtn.style.display='block'; cancelBtn.style.display='block';
       list.innerHTML = names.map(n => {
         const isPresent = recorded.present.has(n);
-        return `
-          <div class="check-item ${isPresent ? 'checked' : ''}" id="${sid(n)}" onclick="this.classList.toggle('checked')">
-            <div class="checkbox"><span class="checkmark">✓</span></div>
-            <span class="check-name">${n}</span>
-          </div>`;
+        return `<div class="check-item ${isPresent?'checked':''}" id="${sid(n)}" onclick="this.classList.toggle('checked')">
+          <div class="checkbox"><span class="checkmark">✓</span></div>
+          <span class="check-name">${n}</span></div>`;
       }).join('');
-
       if (document.getElementById('attendanceSearch').value.trim()) filterCheckList();
       return;
     }
 
-    searchWrap.style.display = 'block';
-    submitBtn.style.display = 'block';
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit Attendance — ' + formatDate(selectedDate);
-
+    searchWrap.style.display='block'; submitBtn.style.display='block';
+    submitBtn.disabled=false;
+    submitBtn.textContent='Submit Attendance — '+formatDate(selectedDate);
     list.innerHTML = names.map(n => `
       <div class="check-item" id="${sid(n)}" onclick="this.classList.toggle('checked')">
         <div class="checkbox"><span class="checkmark">✓</span></div>
-        <span class="check-name">${n}</span>
-      </div>`).join('');
-
+        <span class="check-name">${n}</span></div>`).join('');
     if (document.getElementById('attendanceSearch').value.trim()) filterCheckList();
   }
 
   // ── Submit ────────────────────────────────────────────
   async function submitAttendance() {
     const selectedDate = document.getElementById('attendanceDate').value || todayStr();
-    if (sessions.find(s => s.date === selectedDate)) { showToast('⚠️ Already recorded!'); return; }
+    if (sessions.find(s=>s.date===selectedDate)) { showToast('⚠️ Already recorded!'); return; }
     const present = new Set();
     names.forEach(n => { if (document.getElementById(sid(n))?.classList.contains('checked')) present.add(n); });
     await saveSession(selectedDate, present);
-    showToast('✅ ' + formatDate(selectedDate) + ' saved! (' + present.size + ' present)');
-    document.getElementById('attendanceSearch').value = '';
-    document.getElementById('searchCount').textContent = '';
-    editMode = false;
+    showToast('✅ '+formatDate(selectedDate)+' saved! ('+present.size+' present)');
+    document.getElementById('attendanceSearch').value=''; document.getElementById('searchCount').textContent=''; editMode=false;
   }
   window.submitAttendance = submitAttendance;
 
@@ -477,39 +534,23 @@
     const present = new Set();
     names.forEach(n => { if (document.getElementById(sid(n))?.classList.contains('checked')) present.add(n); });
     await saveSession(selectedDate, present);
-    showToast('✅ ' + formatDate(selectedDate) + ' updated! (' + present.size + ' present)');
-    document.getElementById('attendanceSearch').value = '';
-    document.getElementById('searchCount').textContent = '';
-    editMode = false;
+    showToast('✅ '+formatDate(selectedDate)+' updated! ('+present.size+' present)');
+    document.getElementById('attendanceSearch').value=''; document.getElementById('searchCount').textContent=''; editMode=false;
     renderCheckList();
   }
   window.updateAttendance = updateAttendance;
 
   // ── Consecutive absence detection ─────────────────────
-  // Only flags if the person's CURRENT trailing streak (ending at the latest
-  // session) is >= 3.  Once they attend any session, the streak resets.
   function getCurrentlyFlagged() {
     if (sessions.length < 3) return [];
-    // sessions is sorted oldest → newest (ascending)
     const flagged = [];
     names.forEach(name => {
-      // Walk backwards from the last session to find the trailing absent streak
       let streak = [];
-      for (let i = sessions.length - 1; i >= 0; i--) {
-        if (!sessions[i].present.has(name)) {
-          streak.unshift(sessions[i].date); // add to front to keep ascending order
-        } else {
-          break; // they attended here — streak resets
-        }
+      for (let i=sessions.length-1; i>=0; i--) {
+        if (!sessions[i].present.has(name)) { streak.unshift(sessions[i].date); }
+        else { break; }
       }
-      if (streak.length >= 3) {
-        // Report all consecutive windows of 3 within the streak
-        const windows = [];
-        for (let i = 0; i <= streak.length - 3; i++) {
-          windows.push(streak.slice(i, i + 3));
-        }
-        flagged.push({ name, streak, windows });
-      }
+      if (streak.length >= 3) flagged.push({ name, streak });
     });
     return flagged;
   }
@@ -517,16 +558,13 @@
   // ── Results ───────────────────────────────────────────
   function renderResults() {
     const container = document.getElementById('resultsContent');
-    if (!sessions.length) { container.innerHTML = '<div class="empty">No attendance yet.</div>'; return; }
-
+    if (!sessions.length) { container.innerHTML='<div class="empty">No attendance yet.</div>'; return; }
     const flagged = getCurrentlyFlagged();
-
     let html = `<div class="stats-row">
       <div class="stat-box"><div class="stat-num" style="color:var(--accent)">${sessions.length}</div><div class="stat-label">Days Recorded</div></div>
       <div class="stat-box"><div class="stat-num" style="color:var(--green)">${names.length}</div><div class="stat-label">Enrolled</div></div>
       <div class="stat-box"><div class="stat-num" style="color:var(--red)">${flagged.length}</div><div class="stat-label">Flagged</div></div>
     </div>`;
-
     if (flagged.length) {
       html += `<div class="flag-card"><div class="flag-card-title">🚨 3 Consecutive Absences Detected</div>`;
       flagged.forEach(f => {
@@ -539,12 +577,8 @@
     } else if (sessions.length >= 3) {
       html += `<div style="background:#22c55e14;border:1px solid #22c55e40;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:var(--green);margin-bottom:8px">✅ No active 3 consecutive absences.</div>`;
     }
-
     html += `<div class="divider"></div>`;
-
-    // Newest date first
-    const reversed = [...sessions].reverse();
-    reversed.forEach(s => {
+    [...sessions].reverse().forEach(s => {
       html += `<div class="results-session">
         <div class="results-session-header">
           <div class="session-label">${formatDate(s.date)}</div>
@@ -556,18 +590,12 @@
       });
       html += `</div></div>`;
     });
-
     container.innerHTML = html;
   }
 
-  // ── Init ──────────────────────────────────────────────
   document.getElementById('attendanceDate').addEventListener('change', () => {
-    editMode = false;
-    document.getElementById('attendanceSearch').value = '';
-    document.getElementById('searchCount').textContent = '';
-    renderCheckList();
+    editMode=false; document.getElementById('attendanceSearch').value=''; document.getElementById('searchCount').textContent=''; renderCheckList();
   });
-  startListeners();
 </script>
 </body>
 </html>

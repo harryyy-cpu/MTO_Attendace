@@ -34,10 +34,31 @@
     .btn-edit { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 6px 14px; font-size: 0.8rem; border-radius: 6px; } .btn-edit:hover { background: #5b8cff22; }
     .btn-update { background: var(--accent); color: #fff; width: 100%; padding: 12px; font-size: 0.95rem; border-radius: 10px; margin-top: 12px; } .btn-update:hover { background: #4a7aee; }
     .btn-cancel { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 100%; padding: 10px; font-size: 0.85rem; border-radius: 10px; margin-top: 8px; } .btn-cancel:hover { background: var(--surface2); }
+
+    /* ── Name list with drag ── */
     .name-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
-    .name-item { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; }
+    .name-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px; font-size: 0.88rem;
+      cursor: default; user-select: none; transition: border-color 0.12s, box-shadow 0.12s;
+    }
+    .name-item.dragging { opacity: 0.4; border-color: var(--accent); }
+    .name-item.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px #5b8cff44; }
+    .drag-handle {
+      display: flex; flex-direction: column; gap: 3px;
+      margin-right: 10px; padding: 2px 4px; cursor: grab; opacity: 0.4;
+      transition: opacity 0.12s; flex-shrink: 0;
+    }
+    .drag-handle:hover { opacity: 1; }
+    .drag-handle:active { cursor: grabbing; }
+    .drag-handle span {
+      display: block; width: 18px; height: 2px;
+      background: var(--label); border-radius: 2px;
+    }
     .name-item .num { color: var(--muted); font-size: 0.75rem; margin-right: 10px; min-width: 20px; }
     .name-item .name-text { flex: 1; }
+
     .session-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; color: var(--label); margin-bottom: 16px; }
     .session-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
@@ -80,7 +101,6 @@
     .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 0.85rem; color: var(--muted); }
-    .sync-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--green); background: #22c55e18; border: 1px solid #22c55e40; border-radius: 20px; padding: 3px 10px; margin-left: 8px; }
     .recorded-notice { display: flex; align-items: center; justify-content: space-between; background: #22c55e10; border: 1px solid #22c55e40; border-radius: 10px; padding: 12px 14px; margin-bottom: 4px; }
     .recorded-notice-text { font-size: 0.83rem; color: var(--green); font-weight: 500; }
     .recorded-notice-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
@@ -95,7 +115,7 @@
 </div>
 
 <h1>📋 MTO Attendance System</h1>
-<p class="subtitle">Attendance tracker • flags 3 consecutive absences </p>
+<p class="subtitle">Attendance tracker • flags 3 consecutive absences</p>
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('enroll')">Enroll</button>
@@ -113,7 +133,7 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Enrolled (<span id="enrollCount">0</span>)</div>
+    <div class="card-title">Enrolled (<span id="enrollCount">0</span>) — drag <span style="opacity:0.5">≡</span> to reorder</div>
     <div class="name-list" id="nameList"><div class="empty">Empty.</div></div>
   </div>
 </div>
@@ -134,23 +154,19 @@
   <div class="card">
     <div class="card-title">Check the names of Presents</div>
 
-    <!-- Shown when recorded & NOT in edit mode -->
     <div id="recordedNotice" style="display:none">
       <div class="recorded-notice">
         <div>
           <div class="recorded-notice-text">✅ Attendance already recorded.</div>
-          
         </div>
         <button class="btn-edit" onclick="enterEditMode()">Edit</button>
       </div>
     </div>
 
-    <!-- Shown when in edit mode -->
     <div id="editModeBanner" style="display:none" class="edit-mode-banner">
       ✏️ Edit mode — make changes then click Save Changes.
     </div>
 
-    <!-- Search (hidden when recorded & not editing) -->
     <div class="search-wrap" id="searchWrap">
       <span class="search-icon">🔍</span>
       <input type="text" id="attendanceSearch" placeholder="Search" oninput="filterCheckList()" />
@@ -279,17 +295,68 @@
   }
   window.removeName = removeName;
 
+  // ── Drag-to-reorder ───────────────────────────────────
+  let dragSrcIndex = null;
+
   function renderEnrollList() {
     const list = document.getElementById('nameList');
     document.getElementById('enrollCount').textContent = names.length;
     if (!names.length) { list.innerHTML = '<div class="empty">Empty.</div>'; return; }
+
     list.innerHTML = names.map((n, i) => `
-      <div class="name-item">
+      <div class="name-item" draggable="true" data-index="${i}"
+           ondragstart="onDragStart(event,${i})"
+           ondragover="onDragOver(event)"
+           ondragleave="onDragLeave(event)"
+           ondrop="onDrop(event,${i})"
+           ondragend="onDragEnd(event)">
+        <div class="drag-handle" title="Drag to reorder">
+          <span></span><span></span><span></span>
+        </div>
         <span class="num">${i+1}</span>
         <span class="name-text">${n}</span>
         <button class="btn-danger" onclick="removeName(${i})">Remove</button>
       </div>`).join('');
   }
+
+  function onDragStart(e, i) {
+    dragSrcIndex = i;
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  window.onDragStart = onDragStart;
+
+  function onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drag-over');
+  }
+  window.onDragOver = onDragOver;
+
+  function onDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+  window.onDragLeave = onDragLeave;
+
+  async function onDrop(e, targetIndex) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
+    const moved = names.splice(dragSrcIndex, 1)[0];
+    names.splice(targetIndex, 0, moved);
+    dragSrcIndex = null;
+    renderEnrollList();
+    await saveNames();
+    showToast('↕️ Order updated');
+  }
+  window.onDrop = onDrop;
+
+  function onDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    document.querySelectorAll('.name-item').forEach(el => el.classList.remove('drag-over'));
+    dragSrcIndex = null;
+  }
+  window.onDragEnd = onDragEnd;
 
   // ── Search ────────────────────────────────────────────
   function filterCheckList() {
@@ -339,7 +406,6 @@
 
     document.getElementById('sessionLabel').textContent = formatDate(selectedDate);
 
-    // Reset all UI
     recordedNotice.style.display = 'none';
     editBanner.style.display = 'none';
     submitBtn.style.display = 'none';
@@ -353,14 +419,11 @@
       return;
     }
 
-    // ── Case 1: Date already recorded, NOT editing ────
     if (recorded && !editMode) {
       recordedNotice.style.display = 'block';
-      // Names are hidden — just show the notice, no list
       return;
     }
 
-    // ── Case 2: Edit mode ─────────────────────────────
     if (recorded && editMode) {
       editBanner.style.display = 'block';
       searchWrap.style.display = 'block';
@@ -380,7 +443,6 @@
       return;
     }
 
-    // ── Case 3: Fresh date ────────────────────────────
     searchWrap.style.display = 'block';
     submitBtn.style.display = 'block';
     submitBtn.disabled = false;
@@ -423,30 +485,42 @@
   }
   window.updateAttendance = updateAttendance;
 
-  // ── Results ───────────────────────────────────────────
-  function getConsecutiveAbsent() {
+  // ── Consecutive absence detection ─────────────────────
+  // Only flags if the person's CURRENT trailing streak (ending at the latest
+  // session) is >= 3.  Once they attend any session, the streak resets.
+  function getCurrentlyFlagged() {
     if (sessions.length < 3) return [];
+    // sessions is sorted oldest → newest (ascending)
     const flagged = [];
     names.forEach(name => {
-      let streak = [], longestStreaks = [];
-      sessions.forEach(s => {
-        if (!s.present.has(name)) { streak.push(s.date); }
-        else { if (streak.length >= 3) longestStreaks.push([...streak]); streak = []; }
-      });
-      if (streak.length >= 3) longestStreaks.push([...streak]);
-      if (longestStreaks.length > 0) {
-        let allWindows = [];
-        longestStreaks.forEach(st => { for (let i = 0; i <= st.length-3; i++) allWindows.push(st.slice(i,i+3)); });
-        flagged.push({ name, windows: allWindows });
+      // Walk backwards from the last session to find the trailing absent streak
+      let streak = [];
+      for (let i = sessions.length - 1; i >= 0; i--) {
+        if (!sessions[i].present.has(name)) {
+          streak.unshift(sessions[i].date); // add to front to keep ascending order
+        } else {
+          break; // they attended here — streak resets
+        }
+      }
+      if (streak.length >= 3) {
+        // Report all consecutive windows of 3 within the streak
+        const windows = [];
+        for (let i = 0; i <= streak.length - 3; i++) {
+          windows.push(streak.slice(i, i + 3));
+        }
+        flagged.push({ name, streak, windows });
       }
     });
     return flagged;
   }
 
+  // ── Results ───────────────────────────────────────────
   function renderResults() {
     const container = document.getElementById('resultsContent');
     if (!sessions.length) { container.innerHTML = '<div class="empty">No attendance yet.</div>'; return; }
-    const flagged = getConsecutiveAbsent();
+
+    const flagged = getCurrentlyFlagged();
+
     let html = `<div class="stats-row">
       <div class="stat-box"><div class="stat-num" style="color:var(--accent)">${sessions.length}</div><div class="stat-label">Days Recorded</div></div>
       <div class="stat-box"><div class="stat-num" style="color:var(--green)">${names.length}</div><div class="stat-label">Enrolled</div></div>
@@ -456,17 +530,21 @@
     if (flagged.length) {
       html += `<div class="flag-card"><div class="flag-card-title">🚨 3 Consecutive Absences Detected</div>`;
       flagged.forEach(f => {
-        html += `<div class="flag-item"><div><div class="flag-item-name">✗ ${f.name}</div>
-          ${f.windows.map(w => `<div class="flag-item-days">Absent: ${w.map(formatDate).join(', ')}</div>`).join('')}
+        html += `<div class="flag-item"><div>
+          <div class="flag-item-name">✗ ${f.name}</div>
+          <div class="flag-item-days">Absent: ${f.streak.map(formatDate).join(', ')}</div>
         </div></div>`;
       });
       html += `</div>`;
     } else if (sessions.length >= 3) {
-      html += `<div style="background:#22c55e14;border:1px solid #22c55e40;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:var(--green);margin-bottom:8px">✅ No 3 consecutive absences so far.</div>`;
+      html += `<div style="background:#22c55e14;border:1px solid #22c55e40;border-radius:10px;padding:12px 16px;font-size:0.85rem;color:var(--green);margin-bottom:8px">✅ No active 3 consecutive absences.</div>`;
     }
 
     html += `<div class="divider"></div>`;
-    sessions.forEach(s => {
+
+    // Newest date first
+    const reversed = [...sessions].reverse();
+    reversed.forEach(s => {
       html += `<div class="results-session">
         <div class="results-session-header">
           <div class="session-label">${formatDate(s.date)}</div>
@@ -478,6 +556,7 @@
       });
       html += `</div></div>`;
     });
+
     container.innerHTML = html;
   }
 
